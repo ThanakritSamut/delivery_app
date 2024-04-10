@@ -1,3 +1,4 @@
+import 'package:delivery_app/components/my_drawer.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,7 +15,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text("Home"),
       ),
-      drawer: Drawer(),
+      drawer: MyDrawer(),
     );
   }
 }
