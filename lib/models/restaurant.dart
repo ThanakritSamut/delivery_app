@@ -1,3 +1,7 @@
+import 'dart:js_util';
+
+import 'package:collection/collection.dart';
+import 'package:delivery_app/models/cart_item.dart';
 import 'package:delivery_app/models/food.dart';
 import 'package:flutter/material.dart';
 
@@ -353,15 +357,86 @@ class Restaurant extends ChangeNotifier {
   
   */
 
+  // user cart
+  final List<CartItem> _cart = [];
+
   // add to cart
+  void addToCart(Food food, List<Addon> selectedAddons) {
+    // see if there is a cart item already with the same food and selected addons
+    CartItem? cartItem = _cart.firstWhereOrNull((item) {
+      // check if the food items are the same
+      bool isSameFood = item.food == food;
+
+      // check if the list of selected addons are the same
+      bool isSameAddons = ListEquality().equals(
+        item.selectedAddons,
+        selectedAddons,
+      );
+      return isSameFood && isSameAddons;
+    });
+
+    // if item already exists, increase it's quantity
+    if (cartItem != null) {
+      cartItem.quantity++;
+    }
+
+    // otherwise, add a new cart item to the cart
+    else {
+      _cart.add(
+        CartItem(food: food, selectedAddons: selectedAddons),
+      );
+    }
+    notifyListeners();
+  }
 
   // remove from cart
+  void removeFromCart(CartItem cartItem) {
+    int cartIndex = _cart.indexOf(cartItem);
+
+    if (cartItem != -1) {
+      if (_cart[cartIndex].quantity > 1) {
+        _cart[cartIndex].quantity--;
+      } else {
+        _cart.removeAt(cartIndex);
+      }
+    }
+
+    notifyListeners();
+  }
 
   // get total price of cart
+  double getTotalPrice() {
+    double total = 0.0;
+
+    for (CartItem cartItem in _cart) {
+      double itemTotal = cartItem.food.price;
+
+      for (Addon addon in cartItem.selectedAddons) {
+        itemTotal += addon.price;
+      }
+
+      total += itemTotal * cartItem.quantity;
+    }
+
+    return total;
+  }
 
   // get total number of items in cart
+  int getTotalItemCount() {
+    int totalItemCount = 0;
+
+    for (CartItem cartItem in _cart) {
+      totalItemCount += cartItem.quantity;
+    }
+
+    return totalItemCount;
+  }
 
   // clear cart
+  void clearCart() {
+    _cart.clear();
+    notifyListeners();
+  }
 
   /*
 
