@@ -14,6 +14,7 @@ class CartPage extends StatelessWidget {
     return Consumer<Restaurant>(
       builder: (context, restaurant, child) {
         final userCart = restaurant.cart;
+        final totalPrice = restaurant.getTotalPrice().toStringAsFixed(2);
 
         // scaffold UI
         return Scaffold(
@@ -81,12 +82,29 @@ class CartPage extends StatelessWidget {
 
               // button to pay
               MyButton(
-                text: "Go to checkout",
-                onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PaymentPaage(),
-                    )),
+                text: totalPrice == '0.00'
+                    ? 'Go to checkout'
+                    : 'Go to checkout \$${totalPrice}',
+                onTap: () => totalPrice != '0.00'
+                    ? Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PaymentPaage(),
+                        ))
+                    : showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text("Your cart is empty"),
+                          content: Text(
+                              "Please add some items to your cart before proceeding to checkout."),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text("OK"),
+                            ),
+                          ],
+                        ),
+                      ),
               ),
               SizedBox(height: 25),
             ],
